@@ -1,0 +1,1 @@
+ALTER TABLE t_barcode auto_increment = 1100000001;

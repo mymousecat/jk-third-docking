@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <style>
+        .td {
+            width: 140px;
+            overflow: hidden;
+            font-size: 20px;
+        }
+
+        .td_right {
+            overflow: hidden;
+            font-size: 20px;
+            color: midnightblue;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0px;
+            margin: 0px;
+            font-size: 20px;
+        }
+
+        ul li {
+
+            background-repeat: no-repeat;
+            background-position: 0px 5px;
+            padding-left: 14px;
+            font-size: 20px;
+            color: red;
+
+        }
+
+
+    </style>
+
+    <meta charset="UTF-8">
+    <title>条码号:【{{ translog.barcode_id }}】 预约号:【{{ translog.order_id }}】
+        项目组:【{{ translog.element_assem_name }}】转输失败</title>
+</head>
+<body>
+
+<h3>条码号:【{{ translog.barcode_id }}】 预约号:【{{ translog.order_id }}】 项目组:【{{ translog.element_assem_name }}】转输失败!</h3><br>
+
+<div>
+    <table>
+        <tr>
+            <td class="td">条码号:</td>
+            <td class="td_right">{{ translog.barcode_id }}</td>
+        </tr>
+
+        <tr>
+            <td class="td">预约号:</td>
+            <td class="td_right">{{ translog.order_id }}</td>
+        </tr>
+
+        <tr>
+            <td class="td">姓名:</td>
+            <td class="td_right">{{ translog.username }}</td>
+        </tr>
+        <tr>
+            <td class="td">年龄:</td>
+            <td class="td_right">{{ translog.age }}</td>
+        </tr>
+
+        <tr>
+            <td class="td">项目组ID:</td>
+            <td class="td_right">{{ translog.element_assem_id }}</td>
+        </tr>
+
+
+        <tr>
+            <td class="td">项目组名称:</td>
+            <td class="td_right">{{ translog.element_assem_name }}</td>
+        </tr>
+
+        <tr>
+            <td class="td">操作员:</td>
+            <td class="td_right">{{ translog.operator_name }}</td>
+        </tr>
+
+        <tr>
+            <td class="td">传输时间:</td>
+            <td class="td_right">{{ translog.trans_time }}</td>
+        </tr>
+    </table>
+
+</div>
+
+<div>
+    <p class="td">出错原因：</p>
+    <ul>
+        {% for item in translog.trans_msg.split(';') %}
+        {% if item and item != '' %}
+        <li>{{ item }}</li>
+        {% endif %}
+        {% endfor %}
+    </ul>
+</div>
+
+</body>
+</html>
