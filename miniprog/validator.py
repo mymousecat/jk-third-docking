@@ -15,8 +15,6 @@
 import datetime
 
 
-
-
 def date(strDate):
     try:
         datetime.datetime.strptime(strDate, '%Y-%m-%d')
