@@ -120,9 +120,9 @@ class LisBarcodeDetail(db.Model):
 """
 
 class LisResult(db.Model):
-    __tablename__ = 't_lis_result'
-    __bind_key__ = 'lis'
-    __table_args__ = {'schema': 'portal_lis'}
+    __tablename__ = 'v_lis_result'
+    # __bind_key__ = 'lis'
+    # __table_args__ = {'schema': 'portal_lis'}
     ID = db.Column(db.Integer, primary_key=True)
     BARCODE_ID = db.Column(db.String)
     ORDER_ID = db.Column(db.String)

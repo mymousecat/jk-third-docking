@@ -50,16 +50,16 @@ class Config:
     # 临时文件夹路径
     TEMP_PATH = _tempdir
 
-    MEDIA_SERVER_URL = 'http://lanshankeji.vicp.net:9099/mediasrv/'
+    MEDIA_SERVER_URL = 'http://localhost:8080/mediasrv/'
 
-    SERVER_URL = 'http://lanshankeji.vicp.net:9099/'
+    SERVER_URL = 'http://localhost:8080/'
 
     # 蓝滴体检数据库
     JK_USERNAME_CONST = 'third'
     JK_PASSWORD_CONST = '1234'
 
-    JK_HOST_CONST = 'lanshankeji.vicp.net'
-    JK_DATABASE_CONST = 'jk_lf'
+    JK_HOST_CONST = 'localhost'
+    JK_DATABASE_CONST = 'jk_test'
 
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://%s:%s@%s/%s?charset=utf8' % (
         JK_USERNAME_CONST, JK_PASSWORD_CONST, JK_HOST_CONST, JK_DATABASE_CONST)
