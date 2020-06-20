@@ -37,4 +37,4 @@ WHERE
 	c.EXAM_STATUS <> '已预约'
 AND c.SYMBOL = '有效';
 
-GRANT SELECT ON jk.v_lis_barcode TO lis@'%';
+GRANT SELECT ON jk.v_lis_barcode TO 'third'@'%';

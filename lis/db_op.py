@@ -16,17 +16,17 @@ from datetime import timedelta
 from datetime import datetime as dt
 from sqlalchemy import and_
 from . import db
-from .models import TransLog, Duty, LisBarcode, LisBarcodeDetail, LisResult
+from .models import LisTransLog, LisDuty, LisBarcode, LisResult
 
 """
 操作本地的数据库
 """
 
 
-def saveTransLog(translog):
+def saveLisTransLog(translog):
     try:
         db.session.add(translog)
-        duty = db.session.query(Duty).get((translog.barcode_id, translog.element_assem_id))
+        duty = db.session.query(LisDuty).get((translog.barcode_id, translog.element_assem_id))
         if duty:
             if not duty.is_successfull:  # 如果上次传输没有成功的话，则更新duty表
                 duty.element_assem_id = translog.element_assem_id
@@ -49,21 +49,21 @@ def saveTransLog(translog):
                 db.session.merge(duty)
 
         else:
-            duty = Duty(barcode_id=translog.barcode_id,
-                        order_id=translog.order_id,
-                        element_assem_id=translog.element_assem_id,
-                        element_assem_name=translog.element_assem_name,
-                        username=translog.username,
-                        sex_name=translog.sex_name,
-                        age=translog.age,
-                        operator_id=translog.operator_id,
-                        operator_name=translog.operator_name,
-                        is_successfull=translog.is_successfull,
-                        trans_msg=translog.trans_msg,
-                        sample_date=translog.sample_date,
-                        trans_date=translog.trans_date,
-                        trans_time=translog.trans_time
-                        )
+            duty = LisDuty(barcode_id=translog.barcode_id,
+                           order_id=translog.order_id,
+                           element_assem_id=translog.element_assem_id,
+                           element_assem_name=translog.element_assem_name,
+                           username=translog.username,
+                           sex_name=translog.sex_name,
+                           age=translog.age,
+                           operator_id=translog.operator_id,
+                           operator_name=translog.operator_name,
+                           is_successfull=translog.is_successfull,
+                           trans_msg=translog.trans_msg,
+                           sample_date=translog.sample_date,
+                           trans_date=translog.trans_date,
+                           trans_time=translog.trans_time
+                           )
             db.session.add(duty)
         db.session.commit()
 
@@ -86,7 +86,7 @@ def need_push_mail(barcode_id, element_assem_id):
     """
     result = True
     try:
-        duty = db.session.query(Duty).get((barcode_id, element_assem_id))
+        duty = db.session.query(LisDuty).get((barcode_id, element_assem_id))
         if duty is not None:
             result = not duty.is_successfull
     except Exception as e:
@@ -96,22 +96,22 @@ def need_push_mail(barcode_id, element_assem_id):
 
     return result
 
-
-def clearHistory():
-    """
-    从本地数据库表中，清除60天前的数据
-    :return:
-    """
-    try:
-        twoMonthAgo = (dt.now() + timedelta(days=-60)).date()
-        db.session.query(TransLog).filter(TransLog.sample_date < twoMonthAgo).delete(synchronize_session=False)
-        db.session.query(Duty).filter(Duty.sample_date < twoMonthAgo).delete(synchronize_session=False)
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        raise e
-    finally:
-        db.session.close()
+#
+# def clearHistory():
+#     """
+#     从本地数据库表中，清除60天前的数据
+#     :return:
+#     """
+#     try:
+#         twoMonthAgo = (dt.now() + timedelta(days=-60)).date()
+#         db.session.query(LisTransLog).filter(LisTransLog.sample_date < twoMonthAgo).delete(synchronize_session=False)
+#         db.session.query(LisDuty).filter(LisDuty.sample_date < twoMonthAgo).delete(synchronize_session=False)
+#         db.session.commit()
+#     except Exception as e:
+#         db.session.rollback()
+#         raise e
+#     finally:
+#         db.session.close()
 
 
 def query(limit, offset, barcodeId, orderId, onlyErr, beginDate, endDate):
@@ -127,20 +127,20 @@ def query(limit, offset, barcodeId, orderId, onlyErr, beginDate, endDate):
     :return:
     """
     try:
-        dutyQuery = db.session.query(Duty)
+        dutyQuery = db.session.query(LisDuty)
         if barcodeId:
-            dutyQuery = dutyQuery.filter(Duty.barcode_id == barcodeId)
+            dutyQuery = dutyQuery.filter(LisDuty.barcode_id == barcodeId)
         if orderId:
-            dutyQuery = dutyQuery.filter(Duty.order_id == orderId)
+            dutyQuery = dutyQuery.filter(LisDuty.order_id == orderId)
         if onlyErr == 'true':
-            dutyQuery = dutyQuery.filter(Duty.is_successfull == False)
+            dutyQuery = dutyQuery.filter(LisDuty.is_successfull == False)
         if beginDate:
-            dutyQuery = dutyQuery.filter(Duty.sample_date >= beginDate)
+            dutyQuery = dutyQuery.filter(LisDuty.sample_date >= beginDate)
         if endDate:
-            dutyQuery = dutyQuery.filter(Duty.sample_date <= endDate)
+            dutyQuery = dutyQuery.filter(LisDuty.sample_date <= endDate)
 
         # 使用传输时间的倒序排序
-        dutyQuery = dutyQuery.order_by(Duty.trans_time.desc())
+        dutyQuery = dutyQuery.order_by(LisDuty.trans_time.desc())
 
         page = (offset // limit) + 1
 
@@ -192,24 +192,24 @@ def getBarcodeByOrderId(order_id):
         db.session.close()
 
 
-def getAssemsDetail(barcodeId):
-    """
-    根据试管号，获取小项对照key的字典
-    :param barcodeId:
-    :return:返回字典
-    """
-    try:
-        dict = {}
-        resultList = db.session.query(LisBarcodeDetail).filter(LisBarcodeDetail.BARCODE_ID == barcodeId).all()
-        for result in resultList:
-            key = result.LIS_ELEMENT_CODE
-            dict[key] = result
-        return dict
-    except Exception as e:
-        db.session.rollback()
-        raise e
-    finally:
-        db.session.close()
+# def getAssemsDetail(barcodeId):
+#     """
+#     根据试管号，获取小项对照key的字典
+#     :param barcodeId:
+#     :return:返回字典
+#     """
+#     try:
+#         dict = {}
+#         resultList = db.session.query(LisBarcodeDetail).filter(LisBarcodeDetail.BARCODE_ID == barcodeId).all()
+#         for result in resultList:
+#             key = result.LIS_ELEMENT_CODE
+#             dict[key] = result
+#         return dict
+#     except Exception as e:
+#         db.session.rollback()
+#         raise e
+#     finally:
+#         db.session.close()
 
 
 """

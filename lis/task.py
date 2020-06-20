@@ -15,8 +15,8 @@
 from .paramconfig import getValue
 import logging
 from datetime import datetime
-from .db_op import getNextBarcode, need_push_mail, saveTransLog
-from .models import TransLog
+from .db_op import getNextBarcode, need_push_mail, saveLisTransLog
+from .models import LisTransLog
 from . import appconfig
 from .translisbybarcodeid import transLisByBarcodeId
 from .job import publishMail
@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 
 
 def _saveTransLog(examAssem, sample_date, operator_id, operator_name, is_successful, msg):
-    translog = TransLog()
+    translog = LisTransLog()
     translog.order_id = examAssem.ORDER_ID
     translog.barcode_id = examAssem.BARCODE_ID
 
@@ -50,7 +50,7 @@ def _saveTransLog(examAssem, sample_date, operator_id, operator_name, is_success
 
     # if not translog.is_successfull:
 
-    saveTransLog(translog)
+    saveLisTransLog(translog)
 
     # 是否发送发送邮件
     if appconfig['IS_SEND_MAIL'] and need_push_mail(translog.barcode_id, translog.element_assem_id):

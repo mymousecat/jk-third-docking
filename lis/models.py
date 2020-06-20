@@ -20,7 +20,7 @@ from . import db
 """
 
 
-class TransLog(db.Model):
+class LisTransLog(db.Model):
     """
       操作日志表
     """
@@ -47,7 +47,7 @@ class TransLog(db.Model):
     trans_time = db.Column(db.DateTime, nullable=False, default=dt.now())
 
 
-class Duty(db.Model):
+class LisDuty(db.Model):
     """
     主业务表
     """
@@ -102,17 +102,17 @@ class LisBarcode(db.Model):
     REQ_DATE = db.Column(db.DateTime)
 
 
-class LisBarcodeDetail(db.Model):
-    __tablename__ = 'v_lis_barcode_detail'
-    # __bind_key__ = 'jk'
-    ELEMENT_ID = db.Column(db.String, primary_key=True)
-    ELEMENT_NAME = db.Column(db.String)
-    BARCODE_ID = db.Column(db.String)
-    ORDER_ID = db.Column(db.String)
-    ELEMENT_ASSEM_ID = db.Column(db.String)
-    LIS_ELEMENT_ASSEM_ID = db.Column(db.String)
-    ELEMENT_ASSEM_NAME = db.Column(db.String)
-    LIS_ELEMENT_CODE = db.Column(db.String)
+# class LisBarcodeDetail(db.Model):
+#     __tablename__ = 'v_lis_barcode_detail'
+#     # __bind_key__ = 'jk'
+#     ELEMENT_ID = db.Column(db.String, primary_key=True)
+#     ELEMENT_NAME = db.Column(db.String)
+#     BARCODE_ID = db.Column(db.String)
+#     ORDER_ID = db.Column(db.String)
+#     ELEMENT_ASSEM_ID = db.Column(db.String)
+#     LIS_ELEMENT_ASSEM_ID = db.Column(db.String)
+#     ELEMENT_ASSEM_NAME = db.Column(db.String)
+#     LIS_ELEMENT_CODE = db.Column(db.String)
 
 
 """
