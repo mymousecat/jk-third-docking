@@ -37,7 +37,7 @@ def _is_number(s):
 
 def _get_opid(lisResult):
     opName = lisResult.OPERATOR_NAME  # 报告医生
-    auditName = lisResult.AUDIT_NAME if lisResult.AUDIT_NAME else lisResult.OPERATOR_NAME  # 审核医生，如果审核医生为空，则使用报告医生
+    auditName = lisResult.AUDIT_NAME  if lisResult.AUDIT_NAME is not None else lisResult.OPERATOR_NAME  # 审核医生，如果审核医生为空，则使用报告医生
 
     log.info('获取到报告医生:{}  审核医生:{}'.format(opName, auditName))
 
@@ -142,6 +142,7 @@ def transLisByAssem(departmentId, order_id, assemId, lis_result_dict):
             hisLisElement = lis_result_dict[code]
 
             if c == 0:
+                log.info('用于获取项目结果及操作员的记录ID:{}'.format(hisLisElement.ID))
                 sampleOpId, opId = _get_opid(hisLisElement)
                 lisDatas['sampleOpId'] = sampleOpId
                 lisDatas['opId'] = opId
