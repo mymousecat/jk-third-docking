@@ -22,5 +22,4 @@ from app import app, db, redis_pool, appconfig
 
 app.config.from_object(Config())
 
-
 from . import views

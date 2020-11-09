@@ -12,7 +12,6 @@
 -------------------------------------------------
 """
 
-
 from . import appconfig
 from flask_restful import Resource, reqparse
 import datetime
@@ -27,8 +26,9 @@ from .db_op import getPackages, \
     getReportItemsResult, \
     getReportMainCheck, \
     getTeamOrderByCertId, \
-    getTeamOrderDetail,\
-    getOrderDigestByOrderId
+    getTeamOrderDetail, \
+    getOrderDigestByOrderId, \
+    getReportListByOrderDate
 
 from . import api, app
 from flask import request, abort
@@ -42,11 +42,11 @@ from jktj.orders import OrderInfo, Orders
 #     pay
 
 
-from jktj.jktj import loginByUserNamePwd,\
-    tjAssert,\
-    saveOrder,\
-    deleteOrder,\
-    updateOrderDate,\
+from jktj.jktj import loginByUserNamePwd, \
+    tjAssert, \
+    saveOrder, \
+    deleteOrder, \
+    updateOrderDate, \
     pay
 
 from werkzeug.exceptions import BadRequest, NotFound
@@ -110,6 +110,7 @@ class PackageDetailsApi(Resource):
 
 # from .validator import date,validCert,getInfo
 from . import validator
+
 
 def _checkAttr(d, attrName):
     if attrName not in d.keys():
@@ -338,6 +339,45 @@ class OrdersApi(Resource):
                                       )
 
             return o.toDict()
+        except Exception as e:
+            dealException(e)
+
+
+class ReportListCheckDateAPI(Resource):
+
+    def _post_args(self):
+        _reqparse = reqparse.RequestParser()
+        _reqparse.add_argument('beginDate', type=validator.date, required=False, help="无效的起启日期", location='args')
+        _reqparse.add_argument('endDate', type=validator.date, required=False, help="无效的终止日期", location='args')
+        return _reqparse
+
+    def get(self):
+        """
+        :param beginDate:
+        :param enDate:
+        :return:
+        """
+        try:
+            args = self._post_args().parse_args()
+            strBeginDate = args.get('beginDate')
+            strEndDate = args.get('endDate')
+
+            if (not strBeginDate) and (not strEndDate):
+                abort(400, '请求参数beginDate及endDate不能全部为空')
+
+            beginDate = _getDateTime(strBeginDate, False)
+            endDate = _getDateTime(strEndDate, True)
+
+            reportList = getReportListByOrderDate(beginDate, endDate)
+
+            if not reportList:
+                abort(404, '没有找到预约日期:{} 结束日期:{}日期内，已完成的报告'.format(
+                    strBeginDate, strEndDate
+                ))
+
+            return reportList
+
+
         except Exception as e:
             dealException(e)
 
@@ -679,6 +719,11 @@ api.add_resource(OrdersApi,
 api.add_resource(ReportListAPI,
                  '/api/v1.0/reports/certId/<string:certId>',
                  endpoint='reports'
+                 )
+
+api.add_resource(ReportListCheckDateAPI,
+                 '/api/v1.0/reports/orderCheckDate',
+                 endpoint='reports_checkdate'
                  )
 
 api.add_resource(ReportAPI,

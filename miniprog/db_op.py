@@ -102,6 +102,21 @@ def getOrders(certId):
         db.session.close()
 
 
+def getReportListByOrderDate(beginDate, endDate):
+    try:
+        query = db.session.query(MiniProgReportList)
+        if beginDate:
+            query = query.filter(MiniProgReportList.orderCheckDate >= beginDate)
+        if endDate:
+            query = query.filter(MiniProgReportList.orderCheckDate < endDate)
+        return query.all()
+    except Exception as e:
+        db.session.rollback()
+        raise e
+    finally:
+        db.session.close()
+
+
 def getReportList(certId, beginDate, endDate):
     try:
         query = db.session.query(MiniProgReportList).filter(

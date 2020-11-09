@@ -180,6 +180,8 @@ def transLisByAssem(departmentId, order_id, assemId, lis_result_dict):
                                                       '%Y-%m-%d %H:%M:%S') if hisLisElement.AUDIT_DATE else None
                                                   ))
 
+
+
         finally:
             c += 1
 

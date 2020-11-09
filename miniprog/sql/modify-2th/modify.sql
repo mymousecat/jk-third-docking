@@ -31,7 +31,7 @@ order by detail.display_order;
 grant select on v_miniprog_package_detail to 'third'@'%';
 
 
--- 返回生成报告的列表
+-- 返回生成报告的列表,(修改，增加了预约日期)
 drop  view if EXISTS v_miniprog_get_report_list;
 
 create view  v_miniprog_get_report_list as
@@ -57,7 +57,8 @@ select
   res.main_check_date as "mainCheckTime",
   res.final_check_uid as "finalCheckUid",
   finalcheckop.real_name as "finalCheckDoctor",
-  res.main_check_date as "finalCheckTime"
+  res.main_check_date as "finalCheckTime",
+  res.RESERVE_CHECK_DATE as "orderCheckDate"
 from
 t_personal_order res
 inner join t_person baseinfo on res.PERSON_ID = baseinfo.id
@@ -69,5 +70,12 @@ where res.SYMBOL = '有效' and  res.exam_status  in  ('报告已交接','终检
 -- 体检类型 并且 单位类型 都不是军免，才可以查询的到
 -- and  (res.exam_type <> '02' and  company.company_type <> '军免');
 
-
 grant select on v_miniprog_get_report_list to 'third'@'%';
+
+
+
+
+-- 增加预约表中，预约日期的查询
+CREATE INDEX idx_order_reserve_check_date ON t_personal_order (reserve_check_date);
+
+

@@ -13,6 +13,7 @@
 """
 from . import db
 
+
 class MiniProgPackages(db.Model):
     __tablename__ = 'v_miniprog_packages'
     # __bind_key__ = 'skd'
@@ -171,6 +172,8 @@ class MiniProgReportList(db.Model):
     finalCheckUid = db.Column(db.String)
     finalCheckDoctor = db.Column(db.String)
     finalCheckTime = db.Column(db.DateTime)
+    orderCheckDate = db.Column(db.DateTime)
+
 
 
 # 体检报告 models
