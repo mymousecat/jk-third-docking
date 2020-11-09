@@ -86,7 +86,12 @@ def transLisByAssem(departmentId, order_id, assemId, lis_result_dict):
     examElementSet = set()
 
     for element in elements:
-        extCode = element['extSysControlCode']
+        extCode = None
+        if appconfig['IS_LIS_ITEM_MAPPING']:  # 如果不需要映射项目
+            extCode = element['elementId']
+        else:
+            extCode = element['extSysControlCode']  # 如果需要映射项目
+
         if not extCode:
             raise TJException('项目名：{} 的系统对照为空'.format(element['elementName']))
 
@@ -158,19 +163,37 @@ def transLisByAssem(departmentId, order_id, assemId, lis_result_dict):
             lisElement['ferenceUpper'] = hisLisElement.FERENCE_UPPER_LIMIT if _is_number(
                 hisLisElement.FERENCE_UPPER_LIMIT) else 0
 
+            # 参考范围,使用新版的参考范围
+            lisElement['showFerence'] = hisLisElement.FERENCE_VALUE
+
             lisElement['unit'] = hisLisElement.RESULT_UNIT
-            lisElement['resultType'] = examElement['resultType']
+
+            resultType = examElement['resultType']
+            lisElement['resultType'] = resultType
             lisElement['referenceType'] = '1'  # e['refType']
 
             # 危机值的标识？
             lisElement['criticalValuesSymbol'] = hisLisElement.CRITICAL_VALUES_SYMBOL
 
-            if hisLisElement.POSITIVE_SYMBOL == '↓':
-                lisElement['positiveSymbol'] = '低'
-            elif hisLisElement.POSITIVE_SYMBOL == '↑':
-                lisElement['positiveSymbol'] = '高'
-            else:
-                lisElement['positiveSymbol'] = None
+            # 第三方接入标识
+            lisElement['sumJudgeType'] = 1
+
+            if resultType == '1':  # 数值类值
+                if hisLisElement.POSTIVE_SYMBOL in ('↓', 'L', 'LL'):
+                    lisElement['positiveSymbol'] = '低'
+                elif hisLisElement.POSTIVE_SYMBOL in ('↑', 'H', 'HH'):
+                    lisElement['positiveSymbol'] = '高'
+            elif resultType == '2':  # 文本类型
+                if hisLisElement.POSTIVE_SYMBOL:
+                    lisElement['positiveSymbol'] = lisElement['checkElementResult']  # 非正常值的话，这里写检查结果
+
+            # if hisLisElement.POSITIVE_SYMBOL == '↓':
+            #     lisElement['positiveSymbol'] = '低'
+            # elif hisLisElement.POSITIVE_SYMBOL == '↑':
+            #     lisElement['positiveSymbol'] = '高'
+            # else:
+            #     lisElement['positiveSymbol'] = None
+
             lisDatas['items'].append(lisElement)
 
             # 项目的结果值列表保存，作为将来的参考，结构为 项目名称^项目结果^审核时间

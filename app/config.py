@@ -58,9 +58,8 @@ class Config:
     JK_USERNAME_CONST = 'third'
     JK_PASSWORD_CONST = '1234'
 
-    # JK_HOST_CONST = 'lanshankeji.vicp.net'
-    JK_HOST_CONST = '192.168.75.11'
-    JK_DATABASE_CONST = 'jk'
+    JK_HOST_CONST = 'lanshankeji.vicp.net'
+    JK_DATABASE_CONST = 'jk_lf'
 
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://%s:%s@%s/%s?charset=utf8' % (
         JK_USERNAME_CONST, JK_PASSWORD_CONST, JK_HOST_CONST, JK_DATABASE_CONST)
