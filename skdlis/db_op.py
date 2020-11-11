@@ -11,7 +11,7 @@
                    2019/8/27:
 -------------------------------------------------
 """
-from . import db
+from . import db,getSession
 from .models import LisResult
 
 
@@ -21,16 +21,14 @@ def get_next_id(cur_id):
     :param cur_id:
     :return:
     """
+    session = getSession()
     try:
-        query = db.session.query(LisResult)
+        query = session.query(LisResult)
         if cur_id is not None:
             query = query.filter(LisResult.ID > cur_id)
         return query.order_by(LisResult.ID).first()
-    except Exception as e:
-        db.session.rollback()
-        raise e
     finally:
-        db.session.close()
+        session.close()
 
 
 def get_lis_result(order_id):
@@ -39,13 +37,11 @@ def get_lis_result(order_id):
     :param order_id:
     :return:
     """
+    session = getSession()
     try:
-        return db.session.query(LisResult).filter(LisResult.ORDER_ID == order_id).order_by(LisResult.ID).all()
-    except Exception as e:
-        db.session.rollback()
-        raise e
+        return session.query(LisResult).filter(LisResult.ORDER_ID == order_id).order_by(LisResult.ID).all()
     finally:
-        db.session.close()
+        session.close()
 
 
 def add_lis_trans(lis_trans):
@@ -54,11 +50,9 @@ def add_lis_trans(lis_trans):
     :param lis_trans:
     :return:
     """
+    session = getSession()
     try:
-        db.session.add(lis_trans)
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        raise e
+        session.add(lis_trans)
+        session.commit()
     finally:
-        db.session.close()
+        session.close()

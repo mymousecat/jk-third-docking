@@ -12,10 +12,8 @@
 -------------------------------------------------
 """
 
-from datetime import timedelta
-from datetime import datetime as dt
 from sqlalchemy import and_
-from . import db
+from . import getSession
 from .models import LisTransLog, LisDuty, LisBarcode, LisResult
 
 """
@@ -23,10 +21,13 @@ from .models import LisTransLog, LisDuty, LisBarcode, LisResult
 """
 
 
+
+
 def saveLisTransLog(translog):
+    session = getSession()
     try:
-        db.session.add(translog)
-        duty = db.session.query(LisDuty).get((translog.barcode_id, translog.element_assem_id))
+        session.add(translog)
+        duty = session.query(LisDuty).get((translog.barcode_id, translog.element_assem_id))
         if duty:
             if not duty.is_successfull:  # 如果上次传输没有成功的话，则更新duty表
                 duty.element_assem_id = translog.element_assem_id
@@ -46,7 +47,7 @@ def saveLisTransLog(translog):
 
                 duty.trans_date = translog.trans_date
                 duty.trans_time = translog.trans_time
-                db.session.merge(duty)
+                session.merge(duty)
 
         else:
             duty = LisDuty(barcode_id=translog.barcode_id,
@@ -64,18 +65,12 @@ def saveLisTransLog(translog):
                            trans_date=translog.trans_date,
                            trans_time=translog.trans_time
                            )
-            db.session.add(duty)
-        db.session.commit()
-
-        db.session.refresh(translog)
-        db.session.expunge(translog)
-
-    except Exception as e:
-        db.session.rollback()
-        raise e
+            session.add(duty)
+        session.commit()
+        session.refresh(translog)
+        session.expunge(translog)
     finally:
-
-        db.session.close()
+        session.close()
 
 
 def need_push_mail(barcode_id, element_assem_id):
@@ -85,33 +80,17 @@ def need_push_mail(barcode_id, element_assem_id):
     :return:
     """
     result = True
+    session = getSession()
     try:
-        duty = db.session.query(LisDuty).get((barcode_id, element_assem_id))
+        duty = session.query(LisDuty).get((barcode_id, element_assem_id))
         if duty is not None:
             result = not duty.is_successfull
-    except Exception as e:
-        db.session.rollback()
     finally:
-        db.session.close()
+        session.close()
 
     return result
 
-#
-# def clearHistory():
-#     """
-#     从本地数据库表中，清除60天前的数据
-#     :return:
-#     """
-#     try:
-#         twoMonthAgo = (dt.now() + timedelta(days=-60)).date()
-#         db.session.query(LisTransLog).filter(LisTransLog.sample_date < twoMonthAgo).delete(synchronize_session=False)
-#         db.session.query(LisDuty).filter(LisDuty.sample_date < twoMonthAgo).delete(synchronize_session=False)
-#         db.session.commit()
-#     except Exception as e:
-#         db.session.rollback()
-#         raise e
-#     finally:
-#         db.session.close()
+
 
 
 def query(limit, offset, barcodeId, orderId, onlyErr, beginDate, endDate):
@@ -126,8 +105,9 @@ def query(limit, offset, barcodeId, orderId, onlyErr, beginDate, endDate):
     :param endDate:核收的结束时间
     :return:
     """
+    session = getSession()
     try:
-        dutyQuery = db.session.query(LisDuty)
+        dutyQuery = session.query(LisDuty)
         if barcodeId:
             dutyQuery = dutyQuery.filter(LisDuty.barcode_id == barcodeId)
         if orderId:
@@ -145,12 +125,8 @@ def query(limit, offset, barcodeId, orderId, onlyErr, beginDate, endDate):
         page = (offset // limit) + 1
 
         return dutyQuery.paginate(page, limit, False)
-
-    except Exception as e:
-        db.session.rollback()
-        raise e
     finally:
-        db.session.close()
+        session.close()
 
 
 """
@@ -164,16 +140,14 @@ def getAssems(barcodeId):
     :param barcodeId: 要查询的试管号
     :return: 查询到的列表
     """
+    session = getSession()
     try:
         if barcodeId is not None:
-            return db.session.query(LisBarcode).filter(LisBarcode.BARCODE_ID == barcodeId).all()
+            return session.query(LisBarcode).filter(LisBarcode.BARCODE_ID == barcodeId).all()
         else:
             return []
-    except Exception as e:
-        db.session.rollback()
-        raise e
     finally:
-        db.session.close()
+        session.close()
 
 
 def getBarcodeByOrderId(order_id):
@@ -182,14 +156,12 @@ def getBarcodeByOrderId(order_id):
     :param order_id:
     :return:
     """
+    session = getSession()
     try:
-        barcodes = db.session.query(LisBarcode).filter(LisBarcode.ORDER_ID == order_id).all()
+        barcodes = session.query(LisBarcode).filter(LisBarcode.ORDER_ID == order_id).all()
         return set([str(barcode.BARCODE_ID) for barcode in barcodes])
-    except Exception as e:
-        db.session.rollback()
-        raise e
     finally:
-        db.session.close()
+        session.close()
 
 
 # def getAssemsDetail(barcodeId):
@@ -224,23 +196,20 @@ def getNextBarcode(ID, barcoceId):
     :param barcoceId: 条码号
     :return:试管号
     """
+    session = getSession()
     try:
         result = None
         if ID is None:
-            result = db.session.query(LisResult).order_by(LisResult.ID).first()
+            result = session.query(LisResult).order_by(LisResult.ID).first()
         else:
-            result = db.session.query(LisResult).filter(
+            result = session.query(LisResult).filter(
                 and_(LisResult.ID > ID, LisResult.BARCODE_ID != barcoceId)).order_by(LisResult.ID).first()
         if result is not None:
             return result.BARCODE_ID
         else:
             return None
-
-    except Exception as e:
-        db.session.rollback()
-        raise e
     finally:
-        db.session.close()
+        session.close()
 
 
 def getItems(barcodeId):
@@ -249,14 +218,11 @@ def getItems(barcodeId):
     :param barcodeId: 要查询的试管号
     :return: 查询到的列表
     """
+    session = getSession()
     try:
         if barcodeId is not None:
-            return db.session.query(LisResult).filter(LisResult.BARCODE_ID == barcodeId).order_by(LisResult.ID).all()
+            return session.query(LisResult).filter(LisResult.BARCODE_ID == barcodeId).order_by(LisResult.ID).all()
         else:
             return []
-
-    except Exception as e:
-        db.session.rollback()
-        raise e
     finally:
-        db.session.close()
+        session.close()

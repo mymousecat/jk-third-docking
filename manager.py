@@ -16,10 +16,13 @@ import logging
 from logconf import load_my_logging_cfg
 from apscheduler.schedulers.blocking import BlockingScheduler
 
-from lis.task import autoTransLis
-from yibao.task import yibaoTrans
-from pacs.task import autoTransPacsReg, autoTransPacsResult
+# from lis.task import autoTransLis
+# from yibao.task import yibaoTrans
+# from pacs.task import autoTransPacsReg, autoTransPacsResult
 # from skdlis.task import autoTransSkdLis
+
+
+from test_package.db_op import add
 from app import app
 from flask_script import Manager, Command
 
@@ -42,16 +45,29 @@ def _begin_scheduler(scheduler):
         scheduler.shutdown()
 
 
-class Lis(Command):
+class Test(Command):
     """
-    LIS传输
+    测试作务
     """
     def run(self):
-        load_my_logging_cfg('lis_trans')
-        # # 第10秒一次
+        load_my_logging_cfg('test_package_trans')
+        ## 每1秒一次
         scheduler = _get_scheduler()
-        scheduler.add_job(autoTransLis, id='trans_to_lis_ex', trigger='cron', second='*/10', replace_existing=True)
+        scheduler.add_job(add, id='trans_test_package', trigger='cron', second='*/1', replace_existing=True)
         _begin_scheduler(scheduler)
+
+
+
+# class Lis(Command):
+#     """
+#     LIS传输
+#     """
+#     def run(self):
+#         load_my_logging_cfg('lis_trans')
+#         # # 第10秒一次
+#         scheduler = _get_scheduler()
+#         scheduler.add_job(autoTransLis, id='trans_to_lis_ex', trigger='cron', second='*/10', replace_existing=True)
+#         _begin_scheduler(scheduler)
 
 
 # class Pacs(Command):
@@ -108,11 +124,13 @@ class Lis(Command):
 #         _begin_scheduler(scheduler)
 
 
-manager.add_command('lis', Lis())
+# manager.add_command('lis', Lis())
 #manager.add_command('pacs', Pacs())
 #manager.add_command('pacsreg', PacsReg())
 #manager.add_command('yibao', Yiabo())
 # manager.add_command('skdlis', SkdLis())
+
+manager.add_command('test',Test())
 
 if __name__ == '__main__':
     manager.run()

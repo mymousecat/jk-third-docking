@@ -18,7 +18,7 @@ from skdtj.skdtj import initHost
 
 skdlis = Blueprint('skdlis', __name__, url_prefix='/skdlis')
 
-from app import app, db, redis_pool, appconfig
+from app import app, db, redis_pool, appconfig,getSession
 
 app.config.from_object(Config)
 

@@ -18,7 +18,7 @@ from .config import Config
 
 lis = Blueprint('lis', __name__, url_prefix='/lis')
 
-from app import app, db, redis_pool, appconfig
+from app import app, db, redis_pool, appconfig,getSession
 
 app.config.from_object(Config)
 

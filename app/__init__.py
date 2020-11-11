@@ -59,6 +59,11 @@ def after_request(resp):
 app.after_request(after_request)
 db = SQLAlchemy(app=app)
 
+# 获取新的session
+def getSession():
+    return db.create_scoped_session()
+
+
 redis_pool = redis.ConnectionPool(host=app.config['REDIS_HOST'], port=app.config['REDIS_PORT'], decode_responses=True)
 
 appconfig = app.config
@@ -93,9 +98,9 @@ initHost(appconfig['SERVER_URL'])
 # app.register_blueprint(skdlis)
 
 # miniprog
-from miniprog import miniprog
+# from miniprog import miniprog
 
-app.register_blueprint(miniprog)
+# app.register_blueprint(miniprog)
 
 
 from . import views

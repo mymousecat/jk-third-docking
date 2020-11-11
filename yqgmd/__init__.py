@@ -18,7 +18,7 @@ from .config import Config
 
 yq_gmd = Blueprint('yqgmd', __name__, url_prefix='/yqgmd')
 
-from app import app, db, redis_pool, appconfig
+from app import app, db, redis_pool, appconfig,getSession
 
 app.config.from_object(Config)
 

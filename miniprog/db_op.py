@@ -12,7 +12,7 @@
 -------------------------------------------------
 """
 
-from . import db
+from . import getSession
 from .models import MiniProgPackages, \
     MiniProgPackageDetails, \
     MiniProgBaseInfo, \
@@ -24,8 +24,9 @@ from sqlalchemy import or_, and_, desc
 
 
 def getPackages(id=None, packTypeCode=None, sexCode=None, maritalCode=None):
+    session = getSession()
     try:
-        qry = db.session.query(MiniProgPackages)
+        qry = session.query(MiniProgPackages)
         if id is not None:
             return qry.get(id)
         else:
@@ -37,100 +38,84 @@ def getPackages(id=None, packTypeCode=None, sexCode=None, maritalCode=None):
             if maritalCode:
                 qry = qry.filter(or_(MiniProgPackages.maritalCode == maritalCode, MiniProgPackages.maritalCode == None))
             return qry.all()
-    except Exception as e:
-        db.session.rollback()
-        raise e
     finally:
-        db.session.close()
+        session.close()
 
 
 def getPackageDetails(packageId):
+    session = getSession()
     try:
-        return db.session.query(MiniProgPackageDetails).filter(MiniProgPackageDetails.packageId == packageId).all()
-    except Exception as e:
-        db.session.rollback()
-        raise e
+        return session.query(MiniProgPackageDetails).filter(MiniProgPackageDetails.packageId == packageId).all()
     finally:
-        db.session.close()
+        session.close()
 
 
 def getBasicInfo(certId):
+    session = getSession()
     try:
-        return db.session.query(MiniProgBaseInfo).filter(
+        return session.query(MiniProgBaseInfo).filter(
             and_(or_(MiniProgBaseInfo.cert_id == certId.upper(), MiniProgBaseInfo.cert_id == certId.lower()),
                  MiniProgBaseInfo.symbol == '有效')).first()
-    except Exception as e:
-        db.session.rollback()
-        raise e
     finally:
-        db.session.close()
+        session.close()
 
 
 def getOrderDigest(personId):
+    session = getSession()
     try:
-        return db.session.query(MiniProgOrderDigest).filter(
+        return session.query(MiniProgOrderDigest).filter(
             MiniProgOrderDigest.person_id == personId).filter(MiniProgOrderDigest.exam_status == '已预约').filter(
             MiniProgOrderDigest.symbol == '有效').order_by(
             desc(MiniProgOrderDigest.id)).first()
-    except Exception as e:
-        db.session.rollback()
-        raise e
+
     finally:
-        db.session.close()
+        session.close()
 
 
 def getOrderDigestByOrderId(orderId):
+    session = getSession()
     try:
-        return db.session.query(MiniProgOrderDigest).filter(
+        return session.query(MiniProgOrderDigest).filter(
             MiniProgOrderDigest.id == orderId).filter(MiniProgOrderDigest.exam_status == '已预约').filter(
             MiniProgOrderDigest.symbol == '有效').all()
-    except Exception as e:
-        db.session.rollback()
-        raise e
     finally:
-        db.session.close()
+        session.close()
 
 
 def getOrders(certId):
+    session = getSession()
     try:
-        return db.session.query(MiniProgOrders).filter(
+        return session.query(MiniProgOrders).filter(
             or_(MiniProgOrders.certId == certId.upper(), MiniProgOrders.certId == certId.lower())).all()
-    except Exception as e:
-        db.session.rollback()
-        raise e
     finally:
-        db.session.close()
+        session.close()
 
 
 def getReportListByOrderDate(beginDate, endDate):
+    session = getSession()
     try:
-        query = db.session.query(MiniProgReportList)
+        query = session.query(MiniProgReportList)
         if beginDate:
             query = query.filter(MiniProgReportList.orderCheckDate >= beginDate)
         if endDate:
             query = query.filter(MiniProgReportList.orderCheckDate < endDate)
         return query.all()
-    except Exception as e:
-        db.session.rollback()
-        raise e
     finally:
-        db.session.close()
+        session.close()
 
 
 def getReportList(certId, beginDate, endDate):
+    session = getSession()
     try:
-        query = db.session.query(MiniProgReportList).filter(
+        query = session.query(MiniProgReportList).filter(
             or_(MiniProgReportList.certId == certId.upper(), MiniProgReportList.certId == certId.lower()))
         if beginDate:
             query = query.filter(MiniProgReportList.examTime >= beginDate)
         if endDate:
             query = query.filter(MiniProgReportList.examTime <= endDate)
         return query.all()
-    except Exception as e:
-        db.session.rollback()
-        raise e
     finally:
-        db.session.close()
+        session.close()
 
 
 """
@@ -144,13 +129,11 @@ def getReportBasicInfo(orderId):
     :param orderId:
     :return:
     """
+    session = getSession()
     try:
-        return db.session.query(MiniProgBasicInfo).filter(MiniProgBasicInfo.order_id == orderId).first()
-    except Exception as e:
-        db.session.rollback()
-        raise e
+        return session.query(MiniProgBasicInfo).filter(MiniProgBasicInfo.order_id == orderId).first()
     finally:
-        db.session.close()
+        session.close()
 
 
 def getReportItemsResult(orderId):
@@ -159,13 +142,11 @@ def getReportItemsResult(orderId):
     :param orderId:
     :return:
     """
+    session = getSession()
     try:
-        return db.session.query(MiniProgItemResults).filter(MiniProgItemResults.order_id == orderId).all()
-    except Exception as e:
-        db.session.rollback()
-        raise e
+        return session.query(MiniProgItemResults).filter(MiniProgItemResults.order_id == orderId).all()
     finally:
-        db.session.close()
+        session.close()
 
 
 def getReportSummaries(orderId):
@@ -174,13 +155,11 @@ def getReportSummaries(orderId):
     :param orderId:
     :return:
     """
+    session = getSession()
     try:
-        return db.session.query(MiniProgSummaries).filter(MiniProgSummaries.order_id == orderId).all()
-    except Exception as e:
-        db.session.rollback()
-        raise e
+        return session.query(MiniProgSummaries).filter(MiniProgSummaries.order_id == orderId).all()
     finally:
-        db.session.close()
+        session.close()
 
 
 def getReportMainCheck(orderId):
@@ -189,13 +168,11 @@ def getReportMainCheck(orderId):
     :param orderId:
     :return:
     """
+    session = getSession()
     try:
-        return db.session.query(MiniProgMainCheck).filter(MiniProgMainCheck.order_id == orderId).all()
-    except Exception as e:
-        db.session.rollback()
-        raise e
+        return session.query(MiniProgMainCheck).filter(MiniProgMainCheck.order_id == orderId).all()
     finally:
-        db.session.close()
+        session.close()
 
 
 def getTeamOrderByCertId(certId):
@@ -204,16 +181,14 @@ def getTeamOrderByCertId(certId):
     :param certId:
     :return:
     """
+    session = getSession()
     try:
-        return db.session.query(MiniProgTeamOrder).filter(
+        return session.query(MiniProgTeamOrder).filter(
             or_(MiniProgTeamOrder.cert_id == certId.upper(), MiniProgTeamOrder.cert_id == certId.lower())).order_by(
             desc(MiniProgTeamOrder.order_id)).first()
 
-    except Exception as e:
-        db.session.rollback()
-        raise e
     finally:
-        db.session.close()
+        session.close()
 
 
 def getTeamOrderDetail(orderId):
@@ -222,10 +197,8 @@ def getTeamOrderDetail(orderId):
     :param orderId:
     :return:
     """
+    session = getSession()
     try:
-        return db.session.query(MiniProgTeamOrderDetail).filter(MiniProgTeamOrderDetail.order_id == orderId).all()
-    except Exception as e:
-        db.session.rollback()
-        raise e
+        return session.query(MiniProgTeamOrderDetail).filter(MiniProgTeamOrderDetail.order_id == orderId).all()
     finally:
-        db.session.close()
+        session.close()

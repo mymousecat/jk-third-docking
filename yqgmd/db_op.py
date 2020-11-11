@@ -13,14 +13,12 @@
 """
 
 from .models import YQGmdView
-from . import db
+from . import getSession
 
 
 def get_gmd_by_patient(patient_id):
+    session = getSession
     try:
-        return db.session.query(YQGmdView).filter(YQGmdView.PatientID == patient_id).all()
-    except Exception as e:
-        db.session.rollback()
-        raise e
+        return session.query(YQGmdView).filter(YQGmdView.PatientID == patient_id).all()
     finally:
-        db.session.close()
+        session.close()

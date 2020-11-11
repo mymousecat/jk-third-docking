@@ -16,7 +16,7 @@ from flask import Blueprint
 from flask_restful import Api
 from .config import Config
 
-from app import app, db, appconfig
+from app import app, db, appconfig,getSession
 
 appconfig.from_object(Config())
 
